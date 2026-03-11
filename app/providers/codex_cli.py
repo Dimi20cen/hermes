@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -14,6 +15,17 @@ def _messages_to_prompt(messages: list[Message]) -> str:
 
 class CodexCLIProvider:
     name = "codex_cli"
+    STRIPPED_ENV_VARS = {
+        "OPENAI_API_KEY",
+        "OPENAI_BASE_URL",
+        "OPENAI_MODEL",
+        "OPENROUTER_API_KEY",
+        "OPENROUTER_SITE_URL",
+        "OPENROUTER_APP_NAME",
+        "GEMINI_API_KEY",
+        "FALLBACK_MODELS",
+        "HERMES_DEFAULT_PROVIDER",
+    }
 
     def __init__(self, settings: Settings):
         self.settings = settings
@@ -61,6 +73,12 @@ class CodexCLIProvider:
             command[2:2] = ["--profile", self.settings.codex_profile]
         return command
 
+    def _subprocess_env(self) -> dict[str, str]:
+        env = dict(os.environ)
+        for key in self.STRIPPED_ENV_VARS:
+            env.pop(key, None)
+        return env
+
     def _run(self, prompt: str, extra_args: list[str] | None = None) -> str:
         self._check_version()
         with tempfile.TemporaryDirectory(prefix="hermes-codex-") as temp_dir:
@@ -76,6 +94,7 @@ class CodexCLIProvider:
                     text=True,
                     capture_output=True,
                     cwd=self.settings.codex_workdir,
+                    env=self._subprocess_env(),
                     timeout=self.settings.codex_timeout_seconds,
                     check=True,
                 )
@@ -127,6 +146,7 @@ class CodexCLIProvider:
                     text=True,
                     capture_output=True,
                     cwd=self.settings.codex_workdir,
+                    env=self._subprocess_env(),
                     timeout=self.settings.codex_timeout_seconds,
                     check=True,
                 )
@@ -148,4 +168,3 @@ class CodexCLIProvider:
             raise ProviderError("Codex returned an empty structured completion.")
         used_model = self.settings.codex_model or "codex-cli"
         return ProviderResult(provider=self.name, used_model=used_model, content=content)
-

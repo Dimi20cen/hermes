@@ -1,4 +1,5 @@
 from app.config import Settings
+from app.providers.codex_cli import CodexCLIProvider
 from app.providers.base import ProviderError, ProviderRequest, ProviderResult
 from app.schemas import ChatCompletionRequest, Message, StructuredRequest
 from app.services.gateway import GatewayError, GatewayService
@@ -143,3 +144,16 @@ def test_codex_no_fallback_raises() -> None:
         assert "codex unavailable" in str(exc)
     else:
         raise AssertionError("Expected codex failure")
+
+
+def test_codex_subprocess_env_strips_provider_vars(monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "secret")
+    monkeypatch.setenv("GEMINI_API_KEY", "secret")
+
+    provider = CodexCLIProvider(build_settings())
+    env = provider._subprocess_env()
+
+    assert "OPENAI_BASE_URL" not in env
+    assert "OPENROUTER_API_KEY" not in env
+    assert "GEMINI_API_KEY" not in env
