@@ -1,0 +1,9 @@
+services:
+  hermes:
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "8010:8010"
+
