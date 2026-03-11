@@ -1,0 +1,16 @@
+[Unit]
+Description=Hermes AI Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/stacks/hermes
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/srv/stacks/hermes/.env
+ExecStart=/srv/stacks/hermes/.venv/bin/uvicorn app.main:app --app-dir /srv/stacks/hermes --host 0.0.0.0 --port 8010
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

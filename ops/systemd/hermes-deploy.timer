@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Hermes deploy daily at 06:10
+
+[Timer]
+OnCalendar=*-*-* 06:10:00
+Persistent=true
+Unit=hermes-deploy.service
+
+[Install]
+WantedBy=timers.target

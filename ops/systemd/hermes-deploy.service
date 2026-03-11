@@ -1,0 +1,9 @@
+[Unit]
+Description=Deploy Hermes from git and restart the user service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/stacks/hermes
+ExecStart=/usr/bin/bash /srv/stacks/hermes/bin/deploy.sh

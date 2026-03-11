@@ -78,6 +78,46 @@ docker compose up --build
 
 For Codex-backed host usage, run Hermes on the same machine where `codex` is installed and logged in.
 
+## Host Deploy
+For a Codex-backed personal deployment on a machine like `srv`:
+
+```bash
+git clone https://github.com/Dimi20cen/hermes.git /srv/stacks/hermes
+cd /srv/stacks/hermes
+cp .env.example .env
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -e .
+mkdir -p ~/.config/systemd/user
+cp ops/systemd/hermes.service ~/.config/systemd/user/hermes.service
+systemctl --user daemon-reload
+systemctl --user enable --now hermes.service
+```
+
+The sample `ops/systemd/hermes.service` binds Hermes on `0.0.0.0:8010`, which matches a LAN/Tailscale-style host deployment.
+
+## Auto Deploy
+Hermes includes a pull-and-restart deploy script plus a sample daily timer:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp ops/systemd/hermes-deploy.service ~/.config/systemd/user/hermes-deploy.service
+cp ops/systemd/hermes-deploy.timer ~/.config/systemd/user/hermes-deploy.timer
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-deploy.timer
+```
+
+The timer runs `/usr/bin/bash /srv/stacks/hermes/bin/deploy.sh`, which:
+- pulls the latest git commit with `--ff-only`
+- refreshes the virtualenv and editable install
+- restarts `hermes.service`
+
+For unattended user timers across reboot, enable linger once on the host:
+
+```bash
+sudo loginctl enable-linger "$USER"
+```
+
 ## Example
 ```bash
 curl -s http://localhost:8010/v1/structured \
