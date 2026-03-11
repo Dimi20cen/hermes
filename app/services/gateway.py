@@ -53,7 +53,7 @@ class GatewayService:
                 return provider.chat(request)
             return provider.structured(request, schema or {})
         except ProviderError as exc:
-            if provider.name != "codex_cli" or not self.settings.codex_fallback_to_openai:
+            if provider.name != "codex_cli" or not self.settings.codex_fallback_to_openai_compatible:
                 raise GatewayError(str(exc)) from exc
             fallback = self.providers["openai_compatible"]
             try:

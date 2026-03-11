@@ -9,6 +9,42 @@ It gives multiple apps one stable HTTP surface for:
 
 Hermes is intentionally not an app-specific prompt service. Domain prompts stay in the calling app. Hermes owns provider routing, auth, retries/fallbacks, and response normalization.
 
+## Configuration
+Hermes groups env vars by responsibility:
+- `HERMES_*` for gateway server behavior
+- `OPENAI_COMPATIBLE_*` for OpenAI/OpenRouter/Gemini-compatible HTTP providers
+- `CODEX_*` for Codex CLI execution
+
+Example:
+
+```env
+# Hermes server
+HERMES_SERVICE_TOKEN=local-dev-token
+HERMES_DEFAULT_PROVIDER=codex_cli
+HERMES_REQUEST_TIMEOUT_SECONDS=180
+
+# OpenAI-compatible provider
+OPENAI_COMPATIBLE_API_KEY=
+OPENAI_COMPATIBLE_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_COMPATIBLE_MODEL=openai/gpt-4o-mini
+OPENAI_COMPATIBLE_FALLBACK_MODELS=
+OPENAI_COMPATIBLE_SITE_URL=http://localhost:8010
+OPENAI_COMPATIBLE_APP_NAME=hermes
+
+# Codex provider
+CODEX_COMMAND=codex
+CODEX_MODEL=
+CODEX_PROFILE=
+CODEX_SANDBOX=read-only
+CODEX_TIMEOUT_SECONDS=180
+CODEX_EXPECTED_VERSION=
+CODEX_VERSION_STRICT=true
+CODEX_FALLBACK_TO_OPENAI_COMPATIBLE=true
+CODEX_WORKDIR=
+```
+
+Hermes still accepts the older `OPENROUTER_*`, `OPENAI_*`, `GEMINI_*`, and `CODEX_FALLBACK_TO_OPENAI` names as compatibility fallbacks, but the names above are the preferred public config surface.
+
 ## Endpoints
 - `GET /health`
 - `POST /v1/chat/completions`

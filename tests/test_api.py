@@ -22,14 +22,13 @@ def build_settings() -> Settings:
     return Settings(
         service_token="test-token",
         default_provider="openai_compatible",
-        openrouter_api_key="",
-        openai_api_key="",
-        gemini_api_key="",
-        openai_base_url="https://openrouter.ai/api/v1",
-        openai_model="openai/gpt-4o-mini",
-        fallback_models="",
-        openrouter_site_url="http://localhost:8010",
-        openrouter_app_name="hermes",
+        request_timeout_seconds=180,
+        openai_compatible_api_key="",
+        openai_compatible_base_url="https://openrouter.ai/api/v1",
+        openai_compatible_model="openai/gpt-4o-mini",
+        openai_compatible_fallback_models="",
+        openai_compatible_site_url="http://localhost:8010",
+        openai_compatible_app_name="hermes",
         codex_command="codex",
         codex_model="",
         codex_profile="",
@@ -37,7 +36,7 @@ def build_settings() -> Settings:
         codex_timeout_seconds=180,
         codex_expected_version="",
         codex_version_strict=True,
-        codex_fallback_to_openai=True,
+        codex_fallback_to_openai_compatible=True,
         codex_workdir="/tmp",
     )
 
@@ -93,4 +92,3 @@ def test_structured_generation() -> None:
     assert response.status_code == 200
     assert response.json()["data"]["greeting"] == "hello"
     app.dependency_overrides.clear()
-

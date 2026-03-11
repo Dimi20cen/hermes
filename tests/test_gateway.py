@@ -28,14 +28,13 @@ def build_settings(codex_fallback_to_openai: bool = True) -> Settings:
     return Settings(
         service_token="test-token",
         default_provider="openai_compatible",
-        openrouter_api_key="",
-        openai_api_key="",
-        gemini_api_key="",
-        openai_base_url="https://openrouter.ai/api/v1",
-        openai_model="openai/gpt-4o-mini",
-        fallback_models="",
-        openrouter_site_url="http://localhost:8010",
-        openrouter_app_name="hermes",
+        request_timeout_seconds=180,
+        openai_compatible_api_key="",
+        openai_compatible_base_url="https://openrouter.ai/api/v1",
+        openai_compatible_model="openai/gpt-4o-mini",
+        openai_compatible_fallback_models="",
+        openai_compatible_site_url="http://localhost:8010",
+        openai_compatible_app_name="hermes",
         codex_command="codex",
         codex_model="",
         codex_profile="",
@@ -43,7 +42,7 @@ def build_settings(codex_fallback_to_openai: bool = True) -> Settings:
         codex_timeout_seconds=180,
         codex_expected_version="",
         codex_version_strict=True,
-        codex_fallback_to_openai=codex_fallback_to_openai,
+        codex_fallback_to_openai_compatible=codex_fallback_to_openai,
         codex_workdir="/tmp",
     )
 
@@ -147,13 +146,13 @@ def test_codex_no_fallback_raises() -> None:
 
 
 def test_codex_subprocess_env_strips_provider_vars(monkeypatch) -> None:
-    monkeypatch.setenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")
-    monkeypatch.setenv("OPENROUTER_API_KEY", "secret")
+    monkeypatch.setenv("OPENAI_COMPATIBLE_BASE_URL", "https://openrouter.ai/api/v1")
+    monkeypatch.setenv("OPENAI_COMPATIBLE_API_KEY", "secret")
     monkeypatch.setenv("GEMINI_API_KEY", "secret")
 
     provider = CodexCLIProvider(build_settings())
     env = provider._subprocess_env()
 
-    assert "OPENAI_BASE_URL" not in env
-    assert "OPENROUTER_API_KEY" not in env
+    assert "OPENAI_COMPATIBLE_BASE_URL" not in env
+    assert "OPENAI_COMPATIBLE_API_KEY" not in env
     assert "GEMINI_API_KEY" not in env

@@ -15,37 +15,33 @@ class OpenAICompatibleProvider:
         self.settings = settings
 
     def _api_key(self) -> str:
-        api_key = (
-            self.settings.openrouter_api_key
-            or self.settings.openai_api_key
-            or self.settings.gemini_api_key
-        )
+        api_key = self.settings.openai_compatible_api_key
         if not api_key:
-            raise ProviderError("OPENROUTER_API_KEY, OPENAI_API_KEY, or GEMINI_API_KEY is not configured.")
+            raise ProviderError("OPENAI_COMPATIBLE_API_KEY is not configured.")
         return api_key
 
     def _model_chain(self, requested_model: str | None) -> list[str]:
         if requested_model:
             return [requested_model]
-        fallbacks = [item.strip() for item in self.settings.fallback_models.split(",") if item.strip()]
+        fallbacks = [item.strip() for item in self.settings.openai_compatible_fallback_models.split(",") if item.strip()]
         models: list[str] = []
-        for model in [self.settings.openai_model, *fallbacks]:
+        for model in [self.settings.openai_compatible_model, *fallbacks]:
             if model and model not in models:
                 models.append(model)
         return models
 
     def _client(self) -> OpenAI:
-        return OpenAI(api_key=self._api_key(), base_url=self.settings.openai_base_url)
+        return OpenAI(api_key=self._api_key(), base_url=self.settings.openai_compatible_base_url)
 
     def _request_kwargs(self, request: ProviderRequest) -> dict[str, Any]:
         kwargs: dict[str, Any] = {
             "messages": [message.model_dump() for message in request.messages],
             "temperature": request.temperature,
         }
-        if "openrouter.ai" in self.settings.openai_base_url:
+        if "openrouter.ai" in self.settings.openai_compatible_base_url:
             kwargs["extra_headers"] = {
-                "HTTP-Referer": self.settings.openrouter_site_url,
-                "X-Title": self.settings.openrouter_app_name,
+                "HTTP-Referer": self.settings.openai_compatible_site_url,
+                "X-Title": self.settings.openai_compatible_app_name,
             }
         return kwargs
 
